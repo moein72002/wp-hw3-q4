@@ -12,8 +12,8 @@ services:
     ports:
       - 5433:5432
     volumes:
-    - ticket-pgdata:/var/lib/postgresql/data
-    - ./express-ticket-server/CSV_Data:/var/lib/postgresql/data/CSV_Data/
+    - ticket-pgdata:/var/lib/postgresql/data1
+    - ./express-ticket-server/CSV_Data:/var/lib/postgresql/data1/CSV_Data/
 
   auth-postgres:
     container_name: auth-postgres
@@ -25,7 +25,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-    - auth-pgdata:/var/lib/postgresql/data
+    - auth-pgdata:/var/lib/postgresql/data1
     
   
   webbackend-redis:

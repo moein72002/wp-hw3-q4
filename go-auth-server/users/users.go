@@ -119,7 +119,7 @@ func GetUserInfo(jwt string) map[string]interface{} {
 
 		id := isValid
 		var db *sql.DB
-		db, err := sql.Open("postgres", "user=postgres password=alierfan dbname=postgres sslmode=disable")
+		db, err := sql.Open("postgres", "host=auth-postgres port=5432 user=postgres dbname=postgres password=alierfan sslmode=disable")
 		if err != nil {
 			log.Fatalf("Error connecting to the database: %v", err)
 		}
@@ -131,7 +131,6 @@ func GetUserInfo(jwt string) map[string]interface{} {
 		if err != nil {
 			fmt.Println(err)
 			return map[string]interface{}{"message": "User not found"}
-
 		}
 		fmt.Println(user)
 		defer db.Close()
@@ -160,7 +159,6 @@ func GetUserInfo(jwt string) map[string]interface{} {
 }
 
 func Signout(jwt string) map[string]interface{} {
-
 	isValid, exp_time := utils.IsTokenValid(jwt)
 	if isValid != "" {
 		splitToken := strings.Split(jwt, "Bearer ")
@@ -172,18 +170,22 @@ func Signout(jwt string) map[string]interface{} {
 		uid, err := strconv.ParseUint(id, 10, 64)
 		utils.HandleErr(err)
 		u_token = &utils.Unauthorized_token{User_id: uint(uid), Token: jwtToken, Expiration: exp_time}
-
-		db.Create(&u_token)
-		defer db.Close()
-
 		c, isExpired := CheckCache(id, jwtToken)
 		if isExpired {
 			return map[string]interface{}{"message": "token is expired."}
 		} else {
-			client.Set(c+"-"+id, jwtToken, time.Second*time.Duration(exptime)).Err()
+			_, err := client.Ping().Result()
 			if err != nil {
-				utils.HandleErr(err)
+				fmt.Println("Redis client is not up")
+			} else {
+				err = client.Set(c+"-"+id, jwtToken, time.Second*time.Duration(exptime)).Err()
+				if err != nil {
+					utils.HandleErr(err)
+				}
 			}
+			db.Create(&u_token)
+			defer db.Close()
+
 		}
 
 		return map[string]interface{}{"message": "signed out successfully."}
@@ -197,18 +199,41 @@ func CheckCache(id string, jwtToken string) (string, bool) {
 	var count int = 0
 	var c string
 	var isExpired bool = false
-	for true {
-		count += 1
-		c = strconv.FormatInt(int64(count), 10)
-		r, _ := client.Get(c + "-" + id).Result()
-		fmt.Println(r)
-		if r == jwtToken {
-			isExpired = true
-			break
+	_, err := client.Ping().Result()
+	if err != nil {
+		fmt.Println("Redis client is not up")
+		var db *sql.DB
+		db, err = sql.Open("postgres", "user=postgres password=alierfan dbname=webbackend sslmode=disable")
+		if err != nil {
+			log.Fatalf("Error connecting to the database: %v", err)
 		}
-		if r == "" {
-			break
+		var token = ""
+		err = db.QueryRow("SELECT token  FROM unauthorized_tokens  WHERE token =$1 ", jwtToken).Scan(&token)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				fmt.Println(token)
+				return "no found", false
+			} else {
+				fmt.Println(err, "saf")
+			}
 		}
+		fmt.Println(token)
+		return "found", true
+	} else {
+		for true {
+			count += 1
+			c = strconv.FormatInt(int64(count), 10)
+			r, _ := client.Get(c + "-" + id).Result()
+			fmt.Println(r)
+			if r == jwtToken {
+				isExpired = true
+				break
+			}
+			if r == "" {
+				break
+			}
+		}
+		return c, isExpired
 	}
-	return c, isExpired
+	return "both postgres and redis not work", false
 }

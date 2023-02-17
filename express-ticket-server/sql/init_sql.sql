@@ -156,10 +156,10 @@ SELECT flight.flight_id                                        AS flight_id,
 FROM flight
          JOIN aircraft_view on aircraft_view.registration = flight.aircraft;
 
-\copy aircraft_type (type_id, manufacturer, model, series) FROM '/var/lib/postgresql/data/CSV_Data/aircraft_type.csv' CSV HEADER;
-\copy aircraft_layout (layout_id, type_id, y_class_capacity, j_class_capacity, f_class_capacity) FROM '/var/lib/postgresql/data/CSV_Data/aircraft_layout.csv' CSV HEADER;
-\copy aircraft (registration, layout_id) FROM '/var/lib/postgresql/data/CSV_Data/aircraft.csv' CSV HEADER;
-\copy country (country_name) FROM '/var/lib/postgresql/data/CSV_Data/country.csv' CSV HEADER;
-\copy city (country_name, city_name, timezone_name) FROM '/var/lib/postgresql/data/CSV_Data/city.csv' CSV HEADER;
-\copy airport (country_name, city_name, airport_name, iata_code) FROM '/var/lib/postgresql/data/CSV_Data/airport.csv' CSV HEADER;
-\copy flight (flight_serial, flight_id, origin, destination, aircraft, departure_utc, duration, y_price, j_price, f_price) FROM '/var/lib/postgresql/data/CSV_Data/flight.csv' CSV HEADER;
+\copy aircraft_type (type_id, manufacturer, model, series) FROM '/var/lib/postgresql/data1/CSV_Data/aircraft_type.csv' CSV HEADER;
+\copy aircraft_layout (layout_id, type_id, y_class_capacity, j_class_capacity, f_class_capacity) FROM '/var/lib/postgresql/data1/CSV_Data/aircraft_layout.csv' CSV HEADER;
+\copy aircraft (registration, layout_id) FROM '/var/lib/postgresql/data1/CSV_Data/aircraft.csv' CSV HEADER;
+\copy country (country_name) FROM '/var/lib/postgresql/data1/CSV_Data/country.csv' CSV HEADER;
+\copy city (country_name, city_name, timezone_name) FROM '/var/lib/postgresql/data1/CSV_Data/city.csv' CSV HEADER;
+\copy airport (country_name, city_name, airport_name, iata_code) FROM '/var/lib/postgresql/data1/CSV_Data/airport.csv' CSV HEADER;
+\copy flight (flight_serial, flight_id, origin, destination, aircraft, departure_utc, duration, y_price, j_price, f_price) FROM '/var/lib/postgresql/data1/CSV_Data/flight.csv' CSV HEADER;
