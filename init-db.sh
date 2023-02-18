@@ -1,5 +1,6 @@
 # copy ticket.sql to ticket db
 docker cp ./express-ticket-server/sql/init_sql.sql ticket-postgres:/docker-entrypoint-initdb.d/init_sql.sql
+docker cp ./express-ticket-server/CSV_Data ticket-postgres:/var/lib/postgresql/data/CSV_Data
 # create tables in ticket db
 docker exec -u postgres ticket-postgres psql postgres postgres -f docker-entrypoint-initdb.d/init_sql.sql
 

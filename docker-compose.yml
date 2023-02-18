@@ -12,8 +12,7 @@ services:
     ports:
       - 5433:5432
     volumes:
-    - ticket-pgdata:/var/lib/postgresql/data1
-    - ./express-ticket-server/CSV_Data:/var/lib/postgresql/data1/CSV_Data/
+    - ticket-pgdata:/var/lib/postgresql/data
 
   auth-postgres:
     container_name: auth-postgres
@@ -25,7 +24,7 @@ services:
     ports:
       - 5432:5432
     volumes:
-    - auth-pgdata:/var/lib/postgresql/data1
+    - auth-pgdata:/var/lib/postgresql/data
     
   
   webbackend-redis:
@@ -74,6 +73,13 @@ services:
       - GO_AUTH_HOST=http://auth-server:3000
     ports:
       - 3001:3001
+
+  frontend:
+    container_name: frontend
+    build: ./frontend
+    restart: always
+    ports:
+      - 8000:8000
 
   flight-backend-nginx:
     container_name: flight-backend-nginx
